@@ -1,8 +1,8 @@
 local function callback(extra, success, result) -- Calback for load_photo in line 17
   if success then
-    print('File downloaded to:', result)
+    print('<File downloaded to:', result ,'>')
   else
-    print('Error downloading: '..extra)
+    print('[Error downloading: '..extra..']')
   end
 end
 
