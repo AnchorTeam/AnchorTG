@@ -2,15 +2,15 @@ local function set_bot_photo(msg, success, result)
   local receiver = get_receiver(msg)
   if success then
     local file = 'data/photos/bot.jpg'
-    print('File downloaded to:', result)
+    print('<File downloaded to:', result ,'>')
     os.rename(result, file)
-    print('File moved to:', file)
+    print('<File moved to:', file , '>')
     set_profile_photo(file, ok_cb, false)
-    send_large_msg(receiver, 'Photo changed!', ok_cb, false)
+    send_large_msg(receiver, '[Photo] <changed>', ok_cb, false)
     redis:del("bot:photo")
   else
-    print('Error downloading: '..msg.id)
-    send_large_msg(receiver, 'Failed, please try again!', ok_cb, false)
+    print('[Error downloading: '..msg.id..']')
+    send_large_msg(receiver, '(Failed, please try again)', ok_cb, false)
   end
 end
 local function parsed_url(link)
@@ -121,16 +121,16 @@ local function run(msg,matches)
     end
     if matches[1] == "setbotphoto" then
     	redis:set("bot:photo", "waiting")
-    	return 'Please send me bot photo now'
+    	return '<Please send me bot photo now>'
     end
     if matches[1] == "markread" then
     	if matches[2] == "on" then
     		redis:set("bot:markread", "on")
-    		return "Mark read > on"
+    		return "< Mark read > on"
     	end
     	if matches[2] == "off" then
     		redis:del("bot:markread")
-    		return "Mark read > off"
+    		return "< Mark read > off"
     	end
     	return
     end
@@ -140,14 +140,14 @@ local function run(msg,matches)
     end
     if matches[1] == "block" then
     	if is_admin2(matches[2]) then
-    		return "You can't block admins"
+    		return "<You can't block [admins]>"
     	end
     	block_user("user#id"..matches[2],ok_cb,false)
-    	return "User blocked"
+    	return "<blocked>"
     end
     if matches[1] == "unblock" then
     	unblock_user("user#id"..matches[2],ok_cb,false)
-    	return "User unblocked"
+    	return " <unblocked> "
     end
     if matches[1] == "import" then--join by group link
     	local hash = parsed_url(matches[2])
@@ -155,18 +155,18 @@ local function run(msg,matches)
     end
     if matches[1] == "contactlist" then
       get_contact_list(get_contact_list_callback, {target = msg.from.id})
-      return "I've sent contact list with both json and text format to your private"
+      return "(I've sent contact list with both json and text format to your private)"
     end
     if matches[1] == "addcontact" and matches[2] then    add_contact(matches[2],matches[3],matches[4],ok_cb,false)
       return "Number "..matches[2].." add from contact list"
     end
     if matches[1] == "delcontact" then
       del_contact("user#id"..matches[2],ok_cb,false)
-      return "User "..matches[2].." removed from contact list"
+      return "<This User "..matches[2].." removed from contact list>"
     end
     if matches[1] == "dialoglist" then
       get_dialog_list(get_dialog_list_callback, {target = msg.from.id})
-      return "I've sent dialog list with both json and text format to your private"
+      return "(I've sent dialog list with both json and text format to your private)"
     end
     if matches[1] == "whois" then
       user_info("user#id"..matches[2],user_info_callback,{msg=msg})
@@ -181,26 +181,26 @@ local function run(msg,matches)
     	for k,v in pairs(jdat) do
   		redis:hset('user:'..v, 'print_name', k)
   		banall_user(v)
-      		print(k, v.." Globally banned")
+      		print(k, v.." Banalled")
     	end
     end
     return
 end
 return {
   patterns = {
-	"^[!/](pm) (%d+) (.*)$",
-	"^[!/](import) (.*)$",
-	"^[!/](unblock) (%d+)$",
-	"^[!/](block) (%d+)$",
-	"^[!/](markread) (on)$",
-	"^[!/](markread) (off)$",
-	"^[!/](setbotphoto)$",
+	"^[/](pm) (%d+) (.*)$",
+	"^[/](import) (.*)$",
+	"^[/](unblock) (%d+)$",
+	"^[/](block) (%d+)$",
+	"^[/](markread) (on)$",
+	"^[/](markread) (off)$",
+	"^[/](setbotphoto)$",
 	"%[(photo)%]",
-	"^[!/](contactlist)$",
-	"^[!/](dialoglist)$",
-	"^[!/](delcontact) (%d+)$",
+	"^[/](contactlist)$",
+	"^[/](dialoglist)$",
+	"^[/](delcontact) (%d+)$",
         "^[!/](addcontact) (.*) (.*) (.*)$",
-	"^[!/](whois) (%d+)$",
+	"^[/](whois) (%d+)$",
 	"^/(sync_gbans)$"--sync your global bans with seed
   },
   run = run,
