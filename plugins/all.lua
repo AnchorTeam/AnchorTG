@@ -23,9 +23,9 @@ local function chat_stats(chat_id)
         return a.msgs > b.msgs
       end
     end)
-  local text = 'Chat stats:\n'
+  local text = 'Chat stats:\n *'
   for k,user in pairs(users_info) do
-    text = text..user.name..' = '..user.msgs..'\n'
+    text = text..user.name..' = '..user.msgs..'* \n'
   end
   return text
 end
@@ -34,7 +34,7 @@ local function get_group_type(target)
   local data = load_data(_config.moderation.data)
   local group_type = data[tostring(target)]['group_type']
     if not group_type or group_type == nil then
-       return 'No group type available.'
+       return '[No group type available]'
     end
       return group_type
 end
@@ -49,7 +49,7 @@ local function show_group_settings(target)
     end
   end
   local settings = data[tostring(target)]['settings']
-  local text = "Lock group name : "..settings.lock_name.."\nLock group photo : "..settings.lock_photo.."\nLock group member : "..settings.lock_member.."\nflood sensitivity : "..NUM_MSG_MAX
+  local text = " <Lock group name> : "..settings.lock_name.."\n <Lock group photo> : "..settings.lock_photo.."\n <Lock group member> : "..settings.lock_member.."\n <flood sensitivity> : "..NUM_MSG_MAX.."\n @AnchorGroup"
   return text
 end
 
@@ -57,7 +57,7 @@ local function get_description(target)
   local data = load_data(_config.moderation.data)
   local data_cat = 'description'
   if not data[tostring(target)][data_cat] then
-    return 'No description available.'
+    return '<No description available>'
   end
   local about = data[tostring(target)][data_cat]
   return about
@@ -67,7 +67,7 @@ local function get_rules(target)
   local data = load_data(_config.moderation.data)
   local data_cat = 'rules'
   if not data[tostring(target)][data_cat] then
-    return 'No rules available.'
+    return '<No [rules] available>'
   end
   local rules = data[tostring(target)][data_cat]
   return rules
@@ -78,13 +78,13 @@ local function modlist(target)
   local data = load_data(_config.moderation.data)
   local groups = 'groups'
   if not data[tostring(groups)] or not data[tostring(groups)][tostring(target)] then
-    return 'Group is not added or is Realm.'
+    return '<Group is not added or is Realm>'
   end
   if next(data[tostring(target)]['moderators']) == nil then
-    return 'No moderator in this group.'
+    return '<No moderator in this group>'
   end
   local i = 1
-  local message = '\nList of moderators :\n'
+  local message = '\nList of moderators :\n -'
   for k,v in pairs(data[tostring(target)]['moderators']) do
     message = message ..i..' - @'..v..' [' ..k.. '] \n'
     i = i + 1
@@ -96,25 +96,25 @@ local function get_link(target)
   local data = load_data(_config.moderation.data)
   local group_link = data[tostring(target)]['settings']['set_link']
   if not group_link or group_link == nil then 
-    return "No link"
+    return "<No link>"
   end
-  return "Group link:\n"..group_link
+  return "Link This Group>\n [ "..group_link.." ]"*
 end
 
 local function all(target, receiver)
   local text = "All the things I know about this group\n\n"
   local group_type = get_group_type(target)
-  text = text.."Group Type: \n"..group_type
+  text = text.."<Group>  \n"..group_type
   local settings = show_group_settings(target)
-  text = text.."\n\nGroup settings: \n"..settings
+  text = text.."\n\n[Group settings]: \n"..settings
   local rules = get_rules(target)
-  text = text.."\n\nRules: \n"..rules
+  text = text.."\n\n<Rules>: \n"..rules.."\n @AnchorGroup"
   local description = get_description(target)
-  text = text.."\n\nAbout: \n"..description
+  text = text.."\n\n <About>: \n"..description
   local modlist = modlist(target)
-  text = text.."\n\nMods: \n"..modlist
+  text = text.."\n\n <ModList>: \n"..modlist
   local link = get_link(target)
-  text = text.."\n\nLink: \n"..link
+  text = text.."\n\n <This Group Link > \n [ "..link.." ]".
   local stats = chat_stats(target)
   text = text.."\n\n"..stats
   local ban_list = ban_list(target)
@@ -148,8 +148,8 @@ end
 
 return {
   patterns = {
-  "^[!/](all)$",
-  "^[!/](all) (%d+)$"
+  "^[/](all)$",
+  "^[/](all) (%d+)$"
   },
   run = run
 }
